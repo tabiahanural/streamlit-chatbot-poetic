@@ -40,6 +40,6 @@ Proyek ini dibangun menggunakan teknologi-teknologi berikut:
 ## 🌐 Akses Proyek (Live Demo)
 Anda dapat berinteraksi langsung dengan Cermin Aksara Senja melalui link berikut, yang telah di-deploy menggunakan Streamlit Community Cloud:
 
-[👉 Cermin Aksara Senja Live Demo](https://chatbot-poetic.streamlit.app/)
+[🕯️ Cermin Aksara Senja 🌅](https://chatbot-poetic.streamlit.app/)
 
 ---
