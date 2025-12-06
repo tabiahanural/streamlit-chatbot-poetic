@@ -36,3 +36,10 @@ Proyek ini dibangun menggunakan teknologi-teknologi berikut:
 * **Manajemen Paket:** `requirements.txt`
 
 ---
+
+🌐 Akses Proyek (Live Demo)
+Anda dapat berinteraksi langsung dengan Cermin Aksara Senja melalui link berikut, yang telah di-deploy menggunakan Streamlit Community Cloud:
+
+👉 Cermin Aksara Senja Live Demo
+
+---
