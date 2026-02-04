@@ -8,33 +8,48 @@ st.set_page_config(
 )
 
 # --- 1. CSS DENGAN FORCE UPDATE ---
-# Saya tambahkan tag <style> yang lebih spesifik agar menimpa bawaan Streamlit
+# --- CSS KHUSUS UNTUK FIX TAMPILAN SEPERTI DI FOTO ---
 st.markdown("""
     <style>
-    /* 1. Paksa Judul & Subheader agar muat di satu layar HP */
-    h1 {
-        font-size: clamp(1.2rem, 5vw, 2.5rem) !important; 
+    /* 1. Atur Container Utama agar tidak memotong teks */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. Fix Judul (Title) agar ikon dan teks menyatu & rapi */
+    .stTitle h1 {
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
         text-align: center !important;
-        line-height: 1.1 !important;
-        word-wrap: break-word !important;
+        line-height: 1.3 !important;
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* 3. Fix Subheader agar tidak meluber ke samping */
+    .stSubheader {
+        font-size: clamp(0.9rem, 4vw, 1.3rem) !important;
+        text-align: center !important;
+        line-height: 1.4 !important;
+        margin-top: -10px !important; /* Merapatkan dengan judul */
+        display: block !important;
+    }
+
+    /* 4. Atur Bubble Chat agar lebih ramping di HP */
+    [data-testid="stChatMessage"] {
+        padding: 0.5rem !important;
+        margin-bottom: 0.8rem !important;
     }
     
-    /* Target spesifik untuk Subheader */
-    .stMarkdown div p {
-        font-size: clamp(0.8rem, 3.5vw, 1.2rem);
-        text-align: center;
+    [data-testid="stChatMessage"] p {
+        font-size: 0.95rem !important;
     }
 
-    /* 2. Hilangkan padding kosong yang terlalu luas di mobile */
-    [data-testid="stAppViewContainer"] .main .block-container {
-        padding-top: 1rem !important;
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-    }
-
-    /* 3. Kecilkan teks chat agar tidak menumpuk */
-    [data-testid="stChatMessage"] div {
-        font-size: 0.9rem !important;
+    /* 5. Sembunyikan spasi berlebih di atas */
+    .stAppHeader {
+        background-color: transparent !important;
     }
     </style>
     """, unsafe_allow_html=True)
