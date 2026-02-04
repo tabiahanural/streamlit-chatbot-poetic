@@ -11,48 +11,54 @@ st.set_page_config(
 # --- CSS BALANCED (MOBILE & DESKTOP) ---
 st.markdown("""
     <style>
-    /* --- ATURAN GLOBAL (BERLAKU DI SEMUA PERANGKAT) --- */
-    .stTitle h1, .stSubheader {
-        text-align: center !important;
-        width: 100%;
+    /* Global Styles */
+    .custom-header {
+        text-align: center;
+        padding: 0.5rem;
     }
-    
-    /* --- ATURAN KHUSUS DESKTOP (LAYAR LEBAR) --- */
+    .main-title {
+        font-weight: 700;
+        margin-bottom: 0.2rem !important;
+    }
+    .custom-subheader {
+        color: #A0A0A0;
+        margin-bottom: 1rem;
+    }
+    .custom-hr {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        opacity: 0.3;
+    }
+
+    /* Desktop (Layar Lebar) */
     @media (min-width: 1024px) {
-        .block-container {
-            padding-top: 3rem !important;
-            max-width: 800px !important; /* Menjaga agar chat tidak terlalu lebar ke samping */
-        }
-        .stTitle h1 {
-            font-size: 3rem !important;
-        }
-        .stSubheader {
-            font-size: 1.5rem !important;
-        }
+        .main-title { font-size: 2.8rem !important; }
+        .emoji { font-size: 2.5rem; }
+        .custom-subheader { font-size: 1.3rem; }
+        .block-container { max-width: 800px !important; padding-top: 3rem !important; }
     }
 
-    /* --- ATURAN KHUSUS MOBILE (FIX TAMPILAN TERPOTONG) --- */
+    /* Mobile (Layar Kecil) */
     @media (max-width: 640px) {
-        .block-container {
-            padding-top: 1.5rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+        .main-title { 
+            font-size: 1.4rem !important; /* Ukuran teks judul mengecil */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Jarak antara emoji dan teks */
         }
-        
-        .stTitle h1 {
-            font-size: 1.8rem !important; /* Mengecilkan sedikit agar muat satu baris */
-            line-height: 1.2 !important;
+        .emoji { 
+            font-size: 1.2rem; /* Emoji dibuat lebih kecil agar baris tidak bengkak */
         }
-
-        .stSubheader {
-            font-size: 1.1rem !important;
-            line-height: 1.4 !important;
-            margin-top: 0.5rem !important;
+        .custom-subheader { 
+            font-size: 0.95rem; 
+            padding: 0 10px;
+            line-height: 1.3;
         }
-
-        /* Merapikan bubble chat di mobile */
-        [data-testid="stChatMessage"] {
-            padding: 0.4rem !important;
+        .block-container { 
+            padding-top: 1.5rem !important; 
+            padding-left: 0.8rem !important; 
+            padding-right: 0.8rem !important; 
         }
     }
     </style>
@@ -68,9 +74,16 @@ def get_agent():
 agent_executor = get_agent()
 
 # --- 3. Tampilan Header ---
-st.title("🕯️ Cermin Aksara Senja 🌅")
-st.subheader("Tempat Hening bagi Jiwa yang Mencari Jawaban")
-st.markdown("---")
+# --- HEADER DENGAN HTML KUSTOM (Lebih Responsive) ---
+st.markdown("""
+    <div class='custom-header'>
+        <h1 class='main-title'>
+            <span class='emoji'>🕯️</span> Cermin Aksara Senja <span class='emoji'>🌅</span>
+        </h1>
+        <p class='custom-subheader'>Tempat Hening bagi Jiwa yang Mencari Jawaban</p>
+    </div>
+    <hr class='custom-hr'>
+""", unsafe_allow_html=True)
 
 # --- 4. Inisialisasi Riwayat Pesan ---
 if "messages" not in st.session_state:
