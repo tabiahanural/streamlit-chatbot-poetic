@@ -1,5 +1,31 @@
-
 import streamlit as st
+
+# --- 0. KONFIGURASI HALAMAN (WAJIB DI ATAS) ---
+st.set_page_config(
+    page_title="Cermin Aksara Senja", 
+    page_icon="🌙", 
+    layout="centered", # Menggunakan centered agar teks tidak terlalu lebar di desktop
+    initial_sidebar_state="collapsed" # Hemat ruang di mobile
+)
+
+# Custom CSS untuk memperhalus tampilan mobile
+st.markdown("""
+    <style>
+    /* Mengurangi padding atas agar tidak terlalu banyak scrolling di HP */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    /* Memperkecil ukuran font header di mobile */
+    @media (max-width: 640px) {
+        .stTitle { font-size: 1.8rem !important; }
+        .stSubheader { font-size: 1.2rem !important; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 from bot import build_agent # Mengimpor fungsi build_agent
 
 # --- 1. Inisialisasi Agen (Hanya Sekali) ---
