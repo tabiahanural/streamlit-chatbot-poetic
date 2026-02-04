@@ -7,28 +7,34 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 1. TARUH CSS RESPONSIVE DI SINI ---
+# --- 1. CSS DENGAN FORCE UPDATE ---
+# Saya tambahkan tag <style> yang lebih spesifik agar menimpa bawaan Streamlit
 st.markdown("""
     <style>
-    /* Agar Judul & Subheader otomatis mengecil di HP */
-    .stTitle h1 {
-        font-size: clamp(1.8rem, 7vw, 3rem) !important;
-        text-align: center;
-        line-height: 1.2 !important;
-    }
-    .stSubheader {
-        font-size: clamp(1rem, 4vw, 1.5rem) !important;
-        text-align: center;
-        line-height: 1.4 !important;
+    /* 1. Paksa Judul & Subheader agar muat di satu layar HP */
+    h1 {
+        font-size: clamp(1.2rem, 5vw, 2.5rem) !important; 
+        text-align: center !important;
+        line-height: 1.1 !important;
+        word-wrap: break-word !important;
     }
     
-    /* Mengurangi jarak kosong (padding) di mobile */
-    @media (max-width: 640px) {
-        .block-container {
-            padding-top: 1rem !important;
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-        }
+    /* Target spesifik untuk Subheader */
+    .stMarkdown div p {
+        font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+        text-align: center;
+    }
+
+    /* 2. Hilangkan padding kosong yang terlalu luas di mobile */
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 1rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* 3. Kecilkan teks chat agar tidak menumpuk */
+    [data-testid="stChatMessage"] div {
+        font-size: 0.9rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
