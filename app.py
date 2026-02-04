@@ -1,108 +1,112 @@
 import streamlit as st
+from bot import build_agent # Mengimpor fungsi build_agent
 
-# --- 0. KONFIGURASI HALAMAN (WAJIB PALING ATAS) ---
-st.set_page_config(
-    page_title="Cermin Aksara Senja", 
-    page_icon="🌙", 
-    layout="centered", 
-    initial_sidebar_state="collapsed"
-)
-
-# --- 1. CSS KUSTOM UNTUK MOBILE RESPONSIVE ---
-st.markdown("""
-    <style>
-    /* Mengatur font dasar untuk mobile */
-    @media (max-width: 640px) {
-        html {
-            font-size: 14px;
-        }
-        .stTitle h1 {
-            font-size: 1.7rem !important;
-            text-align: center;
-            line-height: 1.2;
-        }
-        .stSubheader {
-            font-size: 1rem !important;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        /* Mengecilkan padding container utama */
-        .block-container {
-            padding-top: 1.5rem !important;
-            padding-left: 0.8rem !important;
-            padding-right: 0.8rem !important;
-        }
-        /* Mengatur teks di dalam bubble chat */
-        [data-testid="stChatMessage"] p {
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
-        }
-    }
-
-    /* Estetika tambahan untuk Bubble Chat */
-    [data-testid="stChatMessage"] {
-        border-radius: 12px;
-        background-color: rgba(255, 255, 255, 0.05);
-        margin-bottom: 10px;
-    }
-    
-    /* Memperbaiki tampilan input di bawah agar tidak tertutup keyboard HP */
-    .stChatInput {
-        padding-bottom: 20px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Impor diletakkan setelah config agar tidak memicu error
-from bot import build_agent 
-
-# --- 2. Inisialisasi Agen (Cache Resource) ---
+# --- 1. Inisialisasi Agen (Hanya Sekali) ---
+# Menggunakan st.cache_resource untuk memastikan agen (termasuk model & memori)
+# dibuat hanya sekali, mempertahankan memori di seluruh sesi.
 @st.cache_resource
 def get_agent():
+    # Model Replicate memerlukan variabel lingkungan REPLICATE_API_TOKEN.
+    # Pastikan file .env (yang dimuat oleh load_dotenv di bot.py) sudah tersedia
+    # dan berisi token yang valid.
     return build_agent()
 
 agent_executor = get_agent()
 
-# --- 3. UI Header ---
 st.title("🕯️ Cermin Aksara Senja 🌅")
 st.subheader("Tempat Hening bagi Jiwa yang Mencari Jawaban")
 st.markdown("---")
 
-# --- 4. Sidebar (Opsi Tambahan) ---
-with st.sidebar:
-    st.title("📜 Ruang Jeda")
-    if st.button("Hapus Jejak Langkah (Reset Chat)"):
-        st.session_state.messages = []
-        st.rerun()
-
-# --- 5. Inisialisasi Riwayat Pesan ---
+# --- 2. Inisialisasi Riwayat Pesan ---
+# st.session_state digunakan untuk menyimpan riwayat pesan antar interaksi.
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    # Berikan pesan sambutan awal dari bot
     initial_message = "Di penghujung hari, di bawah naungan Senja, aku menantimu. Aku adalah aksara yang siap merangkai bait-bait motivasi. Apa kabar hatimu? Mari bercerita tanpa perlu tergesa."
     st.session_state.messages.append({"role": "assistant", "content": initial_message})
 
-# --- 6. Tampilkan Riwayat Pesan ---
+# --- 3. Tampilkan Riwayat Pesan dengan Ikon Kustom ---
 for message in st.session_state.messages:
-    icon = "🖋️" if message["role"] == "user" else "📜"
+    # Atur ikon berdasarkan peran
+    if message["role"] == "user":
+        icon = "🖋️"
+    else:
+        icon = "📜" # Ikon Bot Puitis
+        
     with st.chat_message(message["role"], avatar=icon):
         st.markdown(message["content"])
 
-# --- 7. Memproses Input Pengguna ---
+# --- 4. Memproses Input Pengguna (Puitis) ---
+# Ubah placeholder chat_input menjadi puitis
 if prompt := st.chat_input("Bisikkan apa yang hatimu rasakan..."):
-    # Tampilkan pesan user
+    # Tambahkan pesan pengguna ke riwayat dan tampilkan
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    # Avatar Pengguna: Ganti 'user' dengan ikon puitis (pena)
     with st.chat_message("user", avatar="🖋️"):
         st.markdown(prompt)
 
-    # Tampilkan respons bot dengan spinner puitis
+    # Panggil Agen dan tampilkan respons
+    # Avatar Bot: Ikon puitis (gulungan aksara)
     with st.chat_message("assistant", avatar="📜"):
+        
+        # Pesan Spinner: Merangkai aksara dari keheningan senja...
         with st.spinner("Merangkai aksara dari keheningan senja..."):
             try:
-                # Memanggil agen
+                # Panggil agen dengan input pengguna
+                # Note: 'agent_executor.invoke' adalah fungsi teknis, tidak perlu diganti
                 response = agent_executor.invoke({"input": prompt})
-                full_response = response.get('output', 'Aksara senja tak terangkai sempurna.')
-            except Exception as e:
-                full_response = f"Sayang sekali, hening ini terpecah oleh gangguan teknis: {e}"
+                
+                # Ambil output teks dari respons agen
+                full_response = response.get('output', 'Aksara senja tak terangkai sempurna. Ada jeda yang tak terduga.')
             
-            st.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
+            except Exception as e:
+                # Tangani kesalahan dengan bahasa puitis
+                full_response = f"Sayang sekali, hening ini terpecah. Ada badai tak terlihat yang mengganggu alunan kata: {e}"
+                st.markdown(full_response)
+        
+        # Tambahkan respons bot ke riwayat
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.markdown(full_response)
+        
+
+st.set_page_config(
+page_title="Cermin Aksara Senja", 
+page_icon="🌙", # Atau 🌅 / 🌙
+layout="centered"
+)
+ini devcontainer.json
+{
+  "name": "Python 3",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "app.py"
+      ]
+    },
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+  "postAttachCommand": {
+    "server": "streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false"
+  },
+  "portsAttributes": {
+    "8501": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    }
+  },
+
+  "forwardPorts": [
+    8501
+  ]
+}
