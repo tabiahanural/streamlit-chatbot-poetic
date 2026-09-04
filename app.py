@@ -1,5 +1,12 @@
+import time
+
 import streamlit as st
 from bot import build_agent # Mengimpor fungsi build_agen
+
+# Jumlah percobaan ulang saat model mengembalikan error sementara
+# (mis. 500 INTERNAL dari backend Vertex/Anthropic di balik Replicate).
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 2
 
 # --- 1. Inisialisasi Agen (Hanya Sekali) ---
 # Menggunakan st.cache_resource untuk memastikan agen (termasuk model & memori)
@@ -52,19 +59,34 @@ if prompt := st.chat_input("Bisikkan apa yang hatimu rasakan..."):
         
         # Pesan Spinner: Merangkai aksara dari keheningan senja...
         with st.spinner("Merangkai aksara dari keheningan senja..."):
-            try:
-                # Panggil agen dengan input pengguna
-                # Note: 'agent_executor.invoke' adalah fungsi teknis, tidak perlu diganti
-                response = agent_executor.invoke({"input": prompt})
-                
-                # Ambil output teks dari respons agen
-                full_response = response.get('output', 'Aksara senja tak terangkai sempurna. Ada jeda yang tak terduga.')
-            
-            except Exception as e:
-                # Tangani kesalahan dengan bahasa puitis
-                full_response = f"Sayang sekali, hening ini terpecah. Ada badai tak terlihat yang mengganggu alunan kata: {e}"
-                st.markdown(full_response)
-    
+            last_error = None
+            full_response = None
+
+            # Coba beberapa kali karena backend model (Replicate -> Anthropic/Vertex)
+            # kadang mengembalikan error 500 INTERNAL yang sifatnya sementara.
+            for attempt in range(1, MAX_RETRIES + 1):
+                try:
+                    # Panggil agen dengan input pengguna
+                    # Note: 'agent_executor.invoke' adalah fungsi teknis, tidak perlu diganti
+                    response = agent_executor.invoke({"input": prompt})
+
+                    # Ambil output teks dari respons agen
+                    full_response = response.get('output', 'Aksara senja tak terangkai sempurna. Ada jeda yang tak terduga.')
+                    last_error = None
+                    break
+
+                except Exception as e:
+                    last_error = e
+                    # Cetak traceback asli ke log server (terlihat di Streamlit Cloud logs)
+                    # supaya mudah didiagnosis, tanpa menampilkannya ke pengguna.
+                    print(f"[agent_executor.invoke] percobaan {attempt}/{MAX_RETRIES} gagal: {e}")
+                    if attempt < MAX_RETRIES:
+                        time.sleep(RETRY_DELAY_SECONDS)
+
+            if last_error is not None:
+                # Tangani kesalahan dengan bahasa puitis, setelah semua percobaan gagal
+                full_response = f"Sayang sekali, hening ini terpecah. Ada badai tak terlihat yang mengganggu alunan kata: {last_error}"
+
         # Tambahkan respons bot ke riwayat
         st.session_state.messages.append({"role": "assistant", "content": full_response})
         st.markdown(full_response)
